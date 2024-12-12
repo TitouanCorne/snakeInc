@@ -4,26 +4,30 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.util.ArrayList;
 
-public class Snake {
+public abstract class Snake implements AlimentEater {
 
-    private final ArrayList<Tile> body;
+    protected final ArrayList<Tile> body;
+    protected Color color;
+    
+        public Snake() {
+            body = new ArrayList<>();
+            color = new Color(192, 192, 192);
+            body.add(new Tile(5, 5)); // La tête du serpent    
+        }
+    
+        public ArrayList<Tile> getBody() {
+            return body;
+        }
+    
+        public Tile getHead() {
+            return body.getFirst();
+        }
+    
+        public void setColor(Color color){
+            this.color = color;
+        }
 
-    public Snake() {
-        body = new ArrayList<>();
-        body.add(new Tile(5, 5)); // La tête du serpent
-    }
-
-    public ArrayList<Tile> getBody() {
-        return body;
-    }
-
-    public Tile getHead() {
-        return body.getFirst();
-    }
-
-    public void eat(Apple apple) {
-        body.add(apple.getPosition());
-    }
+    // public abstract void eat(Aliment aliment);
 
     public void move(char direction) {
         Tile newHead = getHead().copy();
@@ -36,7 +40,7 @@ public class Snake {
                 newHead.setY(newHead.getY() + 1);
                 break;
             case 'L':
-                newHead.setX(newHead.getX() + 1);
+                newHead.setX(newHead.getX() - 1);
                 break;
             case 'R':
                 newHead.setX(newHead.getX() + 1);
@@ -49,7 +53,7 @@ public class Snake {
 
     public void draw(Graphics g) {
         for (Tile t : body) {
-            g.setColor(Color.GREEN);
+            g.setColor(this.color);
             t.drawRectangle(g);
         }
     }

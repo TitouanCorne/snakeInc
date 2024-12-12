@@ -9,9 +9,17 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.Random;
+
 import javax.swing.JPanel;
 import javax.swing.Timer;
+
+import org.snakeinc.snake.model.Anaconda;
 import org.snakeinc.snake.model.Apple;
+import org.snakeinc.snake.model.Aliment;
+import org.snakeinc.snake.model.BoaConstrictor;
+import org.snakeinc.snake.model.Broccoli;
+import org.snakeinc.snake.model.Python;
 import org.snakeinc.snake.model.Snake;
 
 public class GamePanel extends JPanel implements ActionListener, KeyListener {
@@ -23,7 +31,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
     public static final int GAME_HEIGHT = TILE_SIZE * N_TILES_Y;
     private Timer timer;
     private Snake snake;
-    private Apple apple;
+    private Aliment aliment;
     private boolean running = false;
     private char direction = 'R';
 
@@ -37,8 +45,20 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
     }
 
     private void startGame() {
-        snake = new Snake();
-        apple = new Apple();
+        Random random = new Random(); 
+        int randomNumber = random.nextInt(3);
+        switch (randomNumber) {
+            case 0:
+                snake = new Anaconda();
+                break;
+            case 1:
+                snake = new Python();
+                break;
+            case 2:
+                snake = new BoaConstrictor();
+                break;
+        }
+        aliment = new Apple();
         timer = new Timer(100, this);
         timer.start();
         running = true;
@@ -48,7 +68,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         if (running) {
-            apple.draw(g);
+            aliment.draw(g);
             snake.draw(g);
         } else {
             gameOver(g);
@@ -69,9 +89,19 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
             timer.stop();
         }
         // Vérifie si le serpent mange la pomme
-        if (snake.getHead().equals(apple.getPosition())) {
-            snake.eat(apple);
-            apple.updateLocation();
+        if (snake.getHead().equals(aliment.getPosition())) {
+            aliment.beEatenBy(snake);
+            Random random = new Random();
+            Integer randomNumber = random.nextInt(2);
+            switch (randomNumber) {
+                case 0:
+                    aliment = new Apple ();
+                    break;
+                case 1:
+                    aliment = new Broccoli();
+                    break;
+            }
+            aliment.updateLocation();
         }
     }
 
