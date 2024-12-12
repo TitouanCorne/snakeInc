@@ -6,7 +6,6 @@ import lombok.Getter;
 import org.snakeinc.snake.GamePanel;
 
 
-@Getter
 public class Tile {
 
     @Getter

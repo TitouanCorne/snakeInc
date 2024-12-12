@@ -25,8 +25,8 @@ import org.snakeinc.snake.model.Snake;
 public class GamePanel extends JPanel implements ActionListener, KeyListener {
 
     public static final int TILE_SIZE = 20;
-    public static final int N_TILES_X = 25;
-    public static final int N_TILES_Y = 25;
+    public static final int N_TILES_X = 20;
+    public static final int N_TILES_Y = 20;
     public static final int GAME_WIDTH = TILE_SIZE * N_TILES_X;
     public static final int GAME_HEIGHT = TILE_SIZE * N_TILES_Y;
     private Timer timer;
