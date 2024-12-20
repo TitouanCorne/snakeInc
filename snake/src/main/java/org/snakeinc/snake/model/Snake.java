@@ -4,10 +4,16 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.util.ArrayList;
 
-public abstract class Snake implements AlimentEater {
+import lombok.Data;
 
+@Data
+public abstract class Snake implements AlimentEater {
+    protected String name;
     protected final ArrayList<Tile> body;
     protected Color color;
+    public enum Direction {
+        UP, DOWN, LEFT, RIGHT;
+    }
     
         public Snake() {
             body = new ArrayList<>();
@@ -27,22 +33,22 @@ public abstract class Snake implements AlimentEater {
             this.color = color;
         }
 
-    // public abstract void eat(Aliment aliment);
+    public abstract boolean canEatBroccoli();
 
-    public void move(char direction) {
+    public void move(Direction direction) {
         Tile newHead = getHead().copy();
 
         switch (direction) {
-            case 'U':
+            case UP:
                 newHead.setY(newHead.getY() - 1);
                 break;
-            case 'D':
+            case DOWN :
                 newHead.setY(newHead.getY() + 1);
                 break;
-            case 'L':
+            case LEFT :
                 newHead.setX(newHead.getX() - 1);
                 break;
-            case 'R':
+            case RIGHT :
                 newHead.setX(newHead.getX() + 1);
                 break;
         }

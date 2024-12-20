@@ -13,18 +13,9 @@ public class BoaConstrictor extends Snake {
     public BoaConstrictor(){
         super();
         setColor(Color.blue);
+        setName("BoaConstrictor");;
     }
 
-    
-    // @Override
-    // public void eat(Aliment aliment) {
-    //     if(aliment.color == Color.red){ //si c'est une pomme
-    //         body.add(aliment.getPosition());
-    //         body.add(aliment.getPosition());
-    //         body.add(aliment.getPosition());
-    //     }
-    //     // on fait rien si c'est un broccoli
-    // }
 
     @Override
     public void eat(Apple apple) {
@@ -36,5 +27,10 @@ public class BoaConstrictor extends Snake {
     @Override
     public void eat(Broccoli broccoli) {
         //Ne fait rien
+    }
+
+    @Override
+    public boolean canEatBroccoli(){
+        return true; //le boa peut tout manger
     }
 }

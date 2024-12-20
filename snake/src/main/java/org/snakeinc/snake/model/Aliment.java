@@ -15,7 +15,10 @@ public abstract class Aliment {
 
     public Aliment() {
         random = new Random();
-        updateLocation();
+    }
+
+    public Color getColor(){
+        return this.color;
     }
 
     public void setColor(Color color){
@@ -24,10 +27,13 @@ public abstract class Aliment {
 
     public abstract void beEatenBy(AlimentEater alimentEater);
 
-    public void updateLocation() {
+    public void updateLocation(Snake snake) {
         position = new Tile(random.nextInt(0, (GamePanel.GAME_WIDTH / GamePanel.TILE_SIZE - 1)),
                 random.nextInt(0, (GamePanel.GAME_HEIGHT / GamePanel.TILE_SIZE) - 1));
-
+        while(snake.getBody().contains(position)){ // tant que l'aliment est caché derrière le serpent
+            position = new Tile(random.nextInt(0, (GamePanel.GAME_WIDTH / GamePanel.TILE_SIZE - 1)),
+                random.nextInt(0, (GamePanel.GAME_HEIGHT / GamePanel.TILE_SIZE) - 1));
+        }
     }
 
     public void draw(Graphics g) {

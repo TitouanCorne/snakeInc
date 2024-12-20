@@ -13,6 +13,7 @@ public class Python extends Snake {
     public Python(){
         super();
         setColor(Color.green);
+        setName("Python");
     }
 
     // @Override
@@ -35,5 +36,14 @@ public class Python extends Snake {
     public void eat(Broccoli broccoli) {
         body.removeLast();
         body.removeLast();
+    }
+
+    @Override
+    public boolean canEatBroccoli(){
+        if(this.getBody().size() <= 2){ //si c'est un broccoli et que le serpent est trop petit
+            return false;
+        }else{
+            return true;
+        }
     }
 }

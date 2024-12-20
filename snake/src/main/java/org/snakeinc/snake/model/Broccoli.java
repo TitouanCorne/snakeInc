@@ -3,7 +3,7 @@ package org.snakeinc.snake.model;
 public class Broccoli extends Aliment {
     public Broccoli(){
         super();
-        setColor(color.green);
+        setColor(color.GREEN);
     }
 
     @Override

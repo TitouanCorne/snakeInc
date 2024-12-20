@@ -3,7 +3,7 @@ package org.snakeinc.snake.model;
 public class Apple extends Aliment {
     public Apple(){
         super();
-        setColor(color.red);
+        setColor(color.RED);
     }
 
     @Override

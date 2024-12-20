@@ -13,19 +13,8 @@ public class Anaconda extends Snake {
     public Anaconda(){
         super();
         setColor(Color.gray);
+        setName("Anaconda");
     }
-
-    
-    // @Override
-    // public void eat(Aliment aliment) {
-    //     if(aliment.color == Color.red){ //si c'est une pomme
-    //         body.add(aliment.getPosition());
-    //         body.add(aliment.getPosition());
-    //     }
-    //     else{ //c'est un broccoli
-    //         body.removeLast();
-    //     }
-    // }
 
     @Override
     public void eat(Apple apple) {
@@ -36,5 +25,14 @@ public class Anaconda extends Snake {
     @Override
     public void eat(Broccoli broccoli) {
         body.removeLast();        
+    }
+
+    @Override
+    public boolean canEatBroccoli(){
+        if(this.getBody().size() <= 1){ //si c'est un broccoli et que le serpent est trop petit
+            return false;
+        }else{
+            return true;
+        }
     }
 }
