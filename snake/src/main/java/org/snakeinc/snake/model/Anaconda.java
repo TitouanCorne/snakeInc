@@ -13,7 +13,7 @@ public class Anaconda extends Snake {
     public Anaconda(){
         super();
         setColor(Color.gray);
-        setName("Anaconda");
+        setName("anaconda");
     }
 
     @Override

@@ -13,7 +13,7 @@ public class Python extends Snake {
     public Python(){
         super();
         setColor(Color.green);
-        setName("Python");
+        setName("python");
     }
 
     // @Override

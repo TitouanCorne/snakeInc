@@ -13,7 +13,7 @@ public class BoaConstrictor extends Snake {
     public BoaConstrictor(){
         super();
         setColor(Color.blue);
-        setName("BoaConstrictor");;
+        setName("boaConstrictor");;
     }
 
 
