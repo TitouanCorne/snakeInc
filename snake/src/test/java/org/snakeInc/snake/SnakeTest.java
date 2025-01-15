@@ -21,10 +21,10 @@ public class SnakeTest {
     }
 
     @Test void snakeMovesUp_ReturnCorrectHead() {
-        // Snake snake = new Python();
-        // snake.move(Direction.RIGHT);
-        // Assertions.assertEquals(5, snake.getHead().getX());
-        // Assertions.assertEquals(4, snake.getHead().getY());
+        Snake snake = new Python();
+        snake.move(Direction.RIGHT);
+        Assertions.assertEquals(6, snake.getHead().getX());
+        Assertions.assertEquals(5, snake.getHead().getY());
     }
 
 }

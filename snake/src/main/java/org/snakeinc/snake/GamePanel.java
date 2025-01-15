@@ -9,6 +9,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
@@ -17,6 +19,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Random;
+
 
 import javax.swing.JPanel;
 import javax.swing.Timer;
@@ -30,6 +33,9 @@ import org.snakeinc.snake.model.Difficulty;
 import org.snakeinc.snake.model.Python;
 import org.snakeinc.snake.model.Snake;
 import org.snakeinc.snake.model.Snake.Direction;
+import org.snakeinc.snake.model.StatBody;
+
+//import com.fasterxml.jackson.databind.ObjectMapper; //l'import ne marche pas.
 
 public class GamePanel extends JPanel implements ActionListener, KeyListener {
 
@@ -49,6 +55,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
     private Direction direction = Direction.RIGHT;
     private Integer score = 0;
     private boolean difficultySelected = false; // Pour savoir si la difficulté a été sélectionnée
+    private boolean isSeeingBestScore = false;
 
     private void showDifficultySelection(Graphics g) {
         score = 0; //on réinitialise le score
@@ -63,6 +70,31 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         g.drawString("1. Easy", (TOTAL_GAME_WIDTH - 90) / 2, TOTAL_GAME_HEIGHT / 2);
         g.drawString("2. Normal", (TOTAL_GAME_WIDTH - 90) / 2, TOTAL_GAME_HEIGHT / 2 + 30);
         g.drawString("3. Hard", (TOTAL_GAME_WIDTH - 90) / 2, TOTAL_GAME_HEIGHT / 2 + 60);
+        g.setColor(Color.GRAY);
+        g.setFont(new Font("Arial", Font.PLAIN, 15));
+        g.drawString("Press enter to see the best scores", TOTAL_GAME_WIDTH/5, TOTAL_GAME_HEIGHT / 2 + 190);
+    }
+
+    private void showBestScores(Graphics g) { //show stats, accessible from the menu
+        g.setColor(Color.BLACK);
+        g.fillRect(0, GAME_HEIGHT, GAME_WIDTH, INFO_ADDITIONAL_HEIGHT); //on peind en noir la zone ou il y a le score pour la masquer
+        g.setColor(Color.WHITE);
+        g.setFont(new Font("Arial", Font.BOLD, 30));
+        FontMetrics metrics = getFontMetrics(g.getFont());
+        g.drawString("Best scores", (GAME_WIDTH - metrics.stringWidth("Best scores")) / 2, (GAME_HEIGHT + 50) / 4);
+        
+        //on récupère les stats pour chaque niveau de difficulté
+        //String score_easy = getStats("easy"); 
+        //String score_normal = getStats("normal"); 
+        //String score_hard = getStats("hard"); 
+        //on les affiche /!\ il faudrait passer par un objet --> StatBody (je le ferai plus tard)
+        g.setFont(new Font("Arial", Font.BOLD, 15));
+        metrics = getFontMetrics(g.getFont());
+        g.drawString("Les stats seront affichées ici prochainement", (TOTAL_GAME_WIDTH - metrics.stringWidth("Les stats seront affichées ici prochainement") ) / 2, TOTAL_GAME_HEIGHT / 2 + 10);
+        
+        g.setColor(Color.GRAY);
+        g.setFont(new Font("Arial", Font.PLAIN, 15));
+        g.drawString("Press Enter to go back to the difficulty selection screen.", 15, TOTAL_GAME_HEIGHT / 2 + 190);
     }
 
     public GamePanel() {
@@ -114,8 +146,11 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
                 showDifficulty(g, difficulty);
             }
         }
-        else{
+        else if(!isSeeingBestScore){
             showDifficultySelection(g);
+        }
+        else if (isSeeingBestScore){
+            showBestScores(g);
         }
     }
 
@@ -123,7 +158,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         try {
             // URL de l'API
             URL url = new URL("http://localhost:8080/api/v1/score");
-            
+
             // Corps de la requête JSON
             String jsonInput = String.format("{\"snake\":\"%s\", \"difficulty\":\"%s\", \"score\":%d}", snake.getName(), difficulty.getMode().toString().toLowerCase(), score);
             
@@ -138,7 +173,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
             }
             int responseCode = connection.getResponseCode();
             if (responseCode == HttpURLConnection.HTTP_OK || responseCode == HttpURLConnection.HTTP_CREATED) {
-                System.out.println("Score sent successfully.");
+                System.out.println("Score sent successfully : " + score.toString() + " avec " + snake.getName() + ", mode : " + difficulty.getMode().toString().toLowerCase());
             } else {
                 System.out.println("Failed to send score: " + responseCode);
             }
@@ -146,6 +181,69 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
             e.printStackTrace();
         }
     }
+   
+    private String getStats(String difficulty){
+        try {
+            // URL de l'API
+            URL url = new URL("http://localhost:8080/api/v1/scores/stats?difficulty=" + difficulty);
+
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("Content-Type", "application/json");
+
+            int responseCode = connection.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK) {                
+                System.out.println("Stats received successfully");
+                BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                StringBuilder response = new StringBuilder();
+                String inputLine;
+
+                while ((inputLine = in.readLine()) != null) {
+                    response.append(inputLine);
+                }
+                in.close();
+                // Retourne la réponse JSON sous forme de String
+                return response.toString();
+            } else {
+                System.out.println("Failed to fetch stats. Response code: " + responseCode);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null; // En cas d'erreur, retourne null
+    }
+
+    // public StatBody getStatsBis(String difficulty) { //pour retourner les stats sous forme d'objet java
+    //     try {
+    //         // Construire l'URL avec la difficulté
+    //         URL url = new URL("http://localhost:8080/api/v1/scores/stats?difficulty=" + difficulty);
+    //         // Configurer la connexion HTTP
+    //         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+    //         connection.setRequestMethod("GET");
+    //         connection.setRequestProperty("Content-Type", "application/json");
+    //         // Vérifier le code de réponse HTTP
+    //         int responseCode = connection.getResponseCode();
+    //         if (responseCode == HttpURLConnection.HTTP_OK) {
+    //             // Lire la réponse
+    //             BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+    //             StringBuilder response = new StringBuilder();
+    //             String inputLine;
+    //             while ((inputLine = in.readLine()) != null) {
+    //                 response.append(inputLine);
+    //             }
+    //             in.close();
+    //             // Convertir le JSON en objet StatBody
+    //             ObjectMapper mapper = new ObjectMapper();
+    //             return mapper.readValue(response.toString(), StatBody.class);
+    //         } else {
+    //             System.out.println("Failed to fetch stats. Response code: " + responseCode);
+    //         }
+    //     } catch (Exception e) {
+    //         e.printStackTrace();
+    //     }
+    //     // Retourner null en cas d'erreur
+    //     return null;
+    // }
 
     private void gameOver(Graphics g) {
         g.setColor(Color.RED);
@@ -154,13 +252,13 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         g.drawString("Game Over", (GAME_WIDTH - metrics.stringWidth("Game Over")) / 2, GAME_HEIGHT / 2);
     }
 
-    private void showScore(Graphics g, Integer score){
+    private void showScore(Graphics g, Integer score){ //when we're playing
         g.setColor(Color.BLACK);
         g.setFont(new Font("Arial", Font.BOLD, 15));
         g.drawString("Score : " + score.toString(), 10, GAME_HEIGHT + 25);
     }
 
-    private void showDifficulty(Graphics g, Difficulty difficulty){
+    private void showDifficulty(Graphics g, Difficulty difficulty){ //when we're playing
         g.setColor(Color.BLACK);
         g.setFont(new Font("Arial", Font.BOLD, 15)); 
         FontMetrics metrics = getFontMetrics(g.getFont());
@@ -174,7 +272,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
             saveScore(snake, score, difficulty);
             timer.stop();
         }
-        // Vérifie si le serpent mange l'aliment'
+        // Vérifie si le serpent mange l'aliment
         if (snake.getHead().equals(aliment.getPosition())) {
             if(aliment.getColor() == Color.GREEN && !snake.canEatBroccoli()){
                 running = false;
@@ -208,23 +306,37 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
     @Override
     public void keyPressed(KeyEvent e) {
         if (!difficultySelected) {
-            switch (e.getKeyCode()) {
-                case KeyEvent.VK_1:
-                    difficulty = new Difficulty(Difficulty.Mode.EASY); // Sélectionner la difficulté "Easy"
-                    difficultySelected = true; // L'utilisateur a sélectionné une difficulté
-                    startGame(difficulty); // Lancer le jeu avec la difficulté choisie
-                    break;
-                case KeyEvent.VK_2:
-                    difficulty = new Difficulty(Difficulty.Mode.NORMAL); // Sélectionner la difficulté "Normal"
-                    difficultySelected = true;
-                    startGame(difficulty);
-                    break;
-                case KeyEvent.VK_3:
-                    difficulty = new Difficulty(Difficulty.Mode.HARD); // Sélectionner la difficulté "Hard"
-                    difficultySelected = true;
-                    startGame(difficulty);
-                    break;
-            }
+            if(!isSeeingBestScore){
+                switch (e.getKeyCode()) {
+                    case KeyEvent.VK_1:
+                        difficulty = new Difficulty(Difficulty.Mode.EASY); // Sélectionner la difficulté "Easy"
+                        difficultySelected = true; // L'utilisateur a sélectionné une difficulté
+                        startGame(difficulty); // Lancer le jeu avec la difficulté choisie
+                        break;
+                    case KeyEvent.VK_2:
+                        difficulty = new Difficulty(Difficulty.Mode.NORMAL); // Sélectionner la difficulté "Normal"
+                        difficultySelected = true;
+                        startGame(difficulty);
+                        break;
+                    case KeyEvent.VK_3:
+                        difficulty = new Difficulty(Difficulty.Mode.HARD); // Sélectionner la difficulté "Hard"
+                        difficultySelected = true;
+                        startGame(difficulty);
+                        break;
+                    case KeyEvent.VK_ENTER: // Difficulty selection --> view best scores
+                        System.out.println("go to best scores");
+                        isSeeingBestScore = true;
+                        break; 
+                    }
+                }
+            else if(isSeeingBestScore){
+                switch (e.getKeyCode()) {
+                    case KeyEvent.VK_ENTER: //  view best scores --> Difficulty selection
+                        System.out.println("go to difficulty selection");
+                        isSeeingBestScore = false;
+                        break;
+                    }
+                }
         }
         else{
             switch (e.getKeyCode()) {
