@@ -42,3 +42,7 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+
+
+/server/src/main/resources/application.properties
+/server/src/main/test/resources/application.properties
